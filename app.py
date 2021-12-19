@@ -18,7 +18,8 @@ def cli():
 @click.option("--screen_name", prompt="Twitter screen name", help="Twitter screen name")
 def add_twitter_target(screen_name):
     ''' add twitter target to the queue'''
-    with open(cfg.TWITTER_JSON_PATH) as json_file:
+    print(cfg.FILE_TWITTER_ACCOUNT)
+    with open(cfg.FILE_TWITTER_ACCOUNT) as json_file:
         json_decoded = json.load(json_file)
 
     if screen_name in json_decoded:
@@ -26,7 +27,7 @@ def add_twitter_target(screen_name):
         return False
 
     json_decoded[screen_name] = str(dt.now())
-    with open(cfg.TWITTER_JSON_PATH, 'w') as json_file:
+    with open(cfg.FILE_TWITTER_ACCOUNT, 'w') as json_file:
         json.dump(json_decoded, json_file)
     
     json_file.close()
@@ -37,7 +38,7 @@ def add_twitter_target(screen_name):
 @click.option("--screen_name", prompt="Twitter screen name", help="Twitter screen name")
 def del_twitter_target(screen_name):
     ''' delete twitter target from the queue'''
-    with open(cfg.TWITTER_JSON_PATH) as json_file:
+    with open(cfg.FILE_TWITTER_ACCOUNT) as json_file:
         json_decoded = json.load(json_file)
 
     if not screen_name in json_decoded:
@@ -46,7 +47,7 @@ def del_twitter_target(screen_name):
 
     del json_decoded[screen_name]
 
-    with open(cfg.TWITTER_JSON_PATH, 'w') as json_file:
+    with open(cfg.FILE_TWITTER_ACCOUNT, 'w') as json_file:
         json.dump(json_decoded, json_file)
     
     json_file.close()
@@ -56,7 +57,7 @@ def del_twitter_target(screen_name):
 @click.command()
 def show_twitter_queue():
     ''' show current twitter queue '''
-    with open(cfg.TWITTER_JSON_PATH) as json_file:
+    with open(cfg.FILE_TWITTER_ACCOUNT) as json_file:
         json_decoded = json.load(json_file)
     
     click.echo('Number of element: {0}'.format(len(json_decoded)))
@@ -78,13 +79,11 @@ def run(with_discord):
 
     twitter = Twitter(w_discord)
 
-    with open(cfg.TWITTER_JSON_PATH) as json_file:
+    with open(cfg.FILE_TWITTER_ACCOUNT, 'r') as json_file:
         json_decoded = json.load(json_file)
 
     for key, value in json_decoded.items():
         twitter.fetch_new_following(key)
-
-
 
 if __name__ == "__main__":
     ascii_art = '''

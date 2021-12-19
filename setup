@@ -1,4 +1,26 @@
 #!/bin/bash
+echo "[TASK] creation of missing repositories"
+tmpDataFolder=".data0/"
+if [ ! -d $tmpDataFolder ]
+then
+  mkdir -p $tmpDataFolder
+fi
+
+declare -a arr=("twitter")
+
+## now loop through the above array
+for i in "${arr[@]}"
+do
+   if [ ! -d $tmpDataFolder/$i ]
+   then
+      mkdir -p $tmpDataFolder/$i
+   fi
+done
+
+echo "[TASK] python env installation"
 python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
+
+echo "[TASK] duplicate .env file"
+cp .env.example .env0
