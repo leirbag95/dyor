@@ -5,6 +5,7 @@ import json
 import requests
 from discord import Webhook, RequestsWebhookAdapter
 from config import Config as cfg
+from modules.message import Message
 import click
 
 from modules.twitter import DATA_FILE, MAX_FETCHED_ACCOUNT
@@ -33,29 +34,28 @@ class Twitter():
         except Exception as e:
             raise Exception('auth error: {0}'.format(str(e)))
         
-        with open(DATA_FILE) as f:
-            self.data = json.load(f)
-        
         self.api = tweepy.API(auth)
     
-    def __logs__(self, message, with_discord=True):
-        ''' manage logs and notification (like discord, telegram...) '''
-
-        click.echo(message)
-
-        if with_discord:
-            try:
-                self.webhook.send(message)
-            except Exception as e:
-                raise Exception('discord notification error: {0}'.format(str(e)))
-
+    
     def update_file(self, data):
         ''' update cache from data '''
         with open(DATA_FILE, 'w') as json_file:
             json.dump(self.data, json_file)
+            json_file.close()
 
     def fetch_new_following(self, screen_name):
-        """ return list of new account followed by `screen_name` """
+        """Retrieve all last 10 accounts followed by `screen_name`
+
+        Args:
+            screen_name (str): twitter username (without @)
+
+        Raises:
+            Exception: An error related to twitter, usually it can be due to a 
+            twitter account that does not exist
+        """
+        with open(DATA_FILE) as f:
+            self.data = json.load(f)
+
         last_friend = self.data.get(screen_name)
         try:
             for (index, user) in enumerate(tweepy.Cursor(self.api.friends, screen_name=screen_name, wait_on_rate_limit=True).items(MAX_FETCHED_ACCOUNT)):
@@ -77,7 +77,12 @@ class Twitter():
                     self.data[screen_name] = new_last_friend
                     self.update_file(self.data)
                     break
-                message = 'New following alert from @{0}: https://twitter.com/@{1}'.format(screen_name, user.screen_name)
-                self.__logs__(message, self.with_discord)
+                
+                obj = {
+                    'username': screen_name,
+                    'target': 'https://twitter.com/@{0}'.format(user.screen_name)
+                }
+                Message.send(obj, cfg.MESSAGE_T.TWITTER)
+                f.close()
         except Exception as e:
             raise Exception('twitter error: {0}'.format(screen_name))
