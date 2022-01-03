@@ -1,5 +1,4 @@
 import json
-from web3 import Web3
 import requests
 import time
 from config import Config
