@@ -8,7 +8,8 @@ from config import Config as cfg
 from modules.message import Message
 import click
 
-from modules.twitter import DATA_FILE, MAX_FETCHED_ACCOUNT
+from modules.twitter import MAX_FETCHED_ACCOUNT
+from models.twitter import Queue as TwtQueue
 
 class Twitter():
 
@@ -32,12 +33,6 @@ class Twitter():
         
         self.api = tweepy.API(auth)
     
-    
-    def update_file(self, data):
-        ''' update cache from data '''
-        with open(DATA_FILE, 'w') as json_file:
-            json.dump(self.data, json_file)
-            json_file.close()
 
     def fetch_new_following(self, screen_name):
         """Retrieve all last 10 accounts followed by `screen_name`
@@ -49,10 +44,11 @@ class Twitter():
             Exception: An error related to twitter, usually it can be due to a 
             twitter account that does not exist
         """
-        with open(DATA_FILE) as f:
-            self.data = json.load(f)
+        twt_queue = TwtQueue(cfg.FILE_TWITTER_QUEUE)
+        
+        data = twt_queue.get_all()
 
-        last_friend = self.data.get(screen_name)
+        last_friend = data.get(screen_name)
         try:
             for (index, user) in enumerate(tweepy.Cursor(self.api.friends, screen_name=screen_name, wait_on_rate_limit=True).items(MAX_FETCHED_ACCOUNT)):
                 if index == 0:
@@ -60,25 +56,27 @@ class Twitter():
                 elif index == MAX_FETCHED_ACCOUNT - 1:
                     #store first user_id to the cache
                     self.data[screen_name] = new_last_friend
-                    self.update_file(self.data)
+                    twt_queue.update(screen_name, new_last_friend)
 
                 if not last_friend:
                     #not in cache
                     self.data[screen_name] = user.id_str
-                    self.update_file(self.data)
+                    twt_queue.update(screen_name, user.id_str)
                     break
 
                 if user.id_str == last_friend:
                     #reach last friend stored
-                    self.data[screen_name] = new_last_friend
-                    self.update_file(self.data)
+                    twt_queue.update(screen_name, new_last_friend)
                     break
                 
                 obj = {
                     'username': screen_name,
                     'target': 'https://twitter.com/@{0}'.format(user.screen_name)
                 }
-                Message.send(obj, cfg.MESSAGE_T.TWITTER)
-                f.close()
+                try:
+                    Message.send(obj, cfg.MESSAGE_T.TWITTER)
+                except Exception as e:
+                    click.echo(str(e))
+
         except Exception as e:
             raise Exception('twitter error: {0}'.format(screen_name))
