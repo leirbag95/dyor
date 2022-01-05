@@ -3,7 +3,6 @@ import requests
 import time
 from config import Config
 from modules.message.models import Message
-
 class Wallet:
 
     def __init__(self, api="https://api.covalenthq.com/v1/"):
@@ -99,4 +98,12 @@ class Wallet:
         with open(Config.FILE_WALLET_QUEUE, 'w') as json_file:
             json.dump(address_queue, json_file)
 
-    
+    def listen_multi_network(self, user, chain_ids=[1, 56, 137, 250, 43114, 42161]):
+        """listen transaction on multi networks
+
+        Args:
+            user (dict): Target details like his name or address
+            chain_ids (list, optional): List of chain id network. Defaults to [1, 56, 137, 250, 43114, 42161].
+        """
+        for chain_id in chain_ids:
+            self.listen_single_network(user, chain_id=chain_id)

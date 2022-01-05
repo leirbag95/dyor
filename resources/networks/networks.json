@@ -1,0 +1,26 @@
+{
+    "1": {
+        "name": "Ethereum",
+        "symbol": "ETH"
+    },
+    "250": {
+        "name": "Fantom Opera",
+        "symbol": "FTM"
+    },
+    "43114": {
+        "name": "Avalanche Mainnet",
+        "symbol": "AVAX"
+    },
+    "137": {
+        "name": "Polygon Mainnet",
+        "symbol": "MATIC"
+    },
+    "56": {
+        "name": "Binance Smart Chain",
+        "symbol": "BNB"
+    },
+    "42161": {
+        "name": "Arbitrum One",
+        "symbol": "AETH"
+    }
+}

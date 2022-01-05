@@ -24,3 +24,5 @@ class Config:
     FILE_TWITTER_ACCOUNT = '.data/twitter/account.json'
     
     FILE_WALLET_QUEUE = '.data/wallet/queue.json'
+
+    FILE_NETWORKS = 'resources/networks/networks.json'

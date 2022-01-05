@@ -36,6 +36,9 @@ class Message:
         chain_id = argv.get('chain_id')
         tx_hash = argv.get('tx_hash')
 
+        with open(cfg.FILE_NETWORKS, 'r') as json_file:
+            networks = json.load(json_file)
+
         body = f"A new event took place from **{username}** at the block **{block_height} ({block_signed_at})** of chain id **{chain_id}**. Here the tx hash: **{tx_hash}**\n"
 
         #discord body message style
@@ -45,6 +48,10 @@ class Message:
         embed.set_author(name='New TX 📒 ', 
                     icon_url='https://upload.wikimedia.org/wikipedia/commons/6/6f/Ethereum-icon-purple.svg')
         
+        embed.add_field(name="Network", value=networks.get(str(chain_id), chain_id))
+        embed.add_field(name="Block", value=f"{block_height} ({block_signed_at})")
+        embed.add_field(name="Username", value=username)
+
         events = argv.get('events', [])
 
         for event in events:

@@ -12,11 +12,7 @@ from modules.twitter import DATA_FILE, MAX_FETCHED_ACCOUNT
 
 class Twitter():
 
-    def __init__(self, with_discord=True):
-        self.with_discord = with_discord
-
-        if with_discord:
-            self.webhook = Webhook.from_url(cfg.DISCORD_WEBHOOK, adapter=RequestsWebhookAdapter())
+    def __init__(self):
         
         access_token = cfg.TWITTER_ACCESS_TOKEN
         access_token_secret = cfg.TWITTER_ACCESS_TOKEN_SECRET
