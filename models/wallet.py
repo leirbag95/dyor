@@ -15,7 +15,8 @@ class Queue:
             name (str): target's name
         """
         obj = {
-            'name': name
+            'name': name,
+            'datetime': str(dt.now())
         }
         self.db.set(address, obj)
     
@@ -42,4 +43,4 @@ class Queue:
         return dict(self.db)
     
     def delete(self, address):
-        self.db.pop(name)
+        self.db.pop(address)

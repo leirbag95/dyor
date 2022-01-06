@@ -83,75 +83,46 @@ def listen_single_network(chain_id):
         wallet.listen_single_network(user, chain_id=chain_id)
 
 @click.command()
-def listen_multi_network():
-    click.echo('listening multi network...')
-
-    chain_ids = [1, 56, 137, 250, 43114, 42161]
-
-    for chain_id in chain_ids:
-        wallet = Wallet()
-    
-        with open(cfg.FILE_WALLET_QUEUE, 'r') as json_file:
-            json_decoded = json.load(json_file)
-
-        for key, value in json_decoded.items():
-            address = key
-            last_block = value.get(str(chain_id), {}).get('last_block', 0)
-            username = value.get('username')
-            user = {
-                'address': address,
-                'username': username,
-                'last_block': last_block
-            }
-            wallet.listen_single_network(user, chain_id=chain_id)
-
-@click.command()
 @click.option("--address", prompt="Address you want to listen", help="Address you want to listen")
 @click.option("--username", prompt="Give a username to address", help="Give username's address")
 def add_address(address, username):
     ''' add new address target to the queue'''
-    with open(cfg.FILE_WALLET_QUEUE) as json_file:
-        json_decoded = json.load(json_file)
+    wallet = Wallet()
+    w_queue = WQueue(cfg.FILE_WALLET_QUEUE)
 
-    if address in json_decoded:
+    queue_addresses = w_queue.get_all()
+
+    if w_queue.is_exist(address):
         click.echo('address already added to the queue')
-        return False
-
-    json_decoded[address] = {
-        'username': username,
-        'datetime': str(dt.now())
-    }
-    with open(cfg.FILE_WALLET_QUEUE, 'w') as json_file:
-        json.dump(json_decoded, json_file)
-
-    click.echo('address added to the queue')
+    else:
+        w_queue.update(address, username)
+        click.echo('address added to the queue')
 
 @click.command()
 @click.option("--address", prompt="Wallet address", help="Wallet address")
 def del_wallet_target(address):
     ''' delete wallet target from the queue'''
-    with open(cfg.FILE_WALLET_QUEUE) as json_file:
-        json_decoded = json.load(json_file)
+    wallet = Wallet()
+    w_queue = WQueue(cfg.FILE_WALLET_QUEUE)
 
-    if not address in json_decoded:
+    queue_addresses = w_queue.get_all()
+
+    if not w_queue.is_exist(address):
         click.echo('wallet not in the queue')
-        return False
-
-    del json_decoded[address]
-
-    with open(cfg.FILE_WALLET_QUEUE, 'w') as json_file:
-        json.dump(json_decoded, json_file)
-    
-    click.echo('wallet deleted from the queue')
+    else:
+        w_queue.delete(address)
+        click.echo('wallet deleted from the queue')
 
 @click.command()
-def show_wallet_queue():
+def show_wallets():
     ''' show current twitter queue '''
-    with open(cfg.FILE_WALLET_QUEUE) as json_file:
-        json_decoded = json.load(json_file)
+    wallet = Wallet()
+    w_queue = WQueue(cfg.FILE_WALLET_QUEUE)
+
+    queue_addresses = w_queue.get_all()
     
-    click.echo('Number of element: {0}'.format(len(json_decoded)))
-    for key, value in json_decoded.items():
+    click.echo('Number of element: {0}'.format(len(queue_addresses)))
+    for key, value in queue_addresses.items():
         click.echo((key, value))
 
 if __name__ == "__main__":
@@ -160,9 +131,8 @@ if __name__ == "__main__":
     cli.add_command(del_twitter)
     cli.add_command(show_twitter)
     cli.add_command(listen_single_network)
-    cli.add_command(listen_multi_network)
     cli.add_command(add_address)
-    cli.add_command(show_wallet_queue)
+    cli.add_command(show_wallets)
     cli.add_command(del_wallet_target)
     cli.add_command(listen_twitter)
     
