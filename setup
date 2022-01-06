@@ -1,4 +1,16 @@
 #!/bin/bash
+echo -e '''
+ /$$$$$$$  /$$     /$$ /$$$$$$  /$$$$$$$ 
+| $$__  $$|  $$   /$$//$$__  $$| $$__  $$
+| $$  \ $$ \  $$ /$$/| $$  \ $$| $$  \ $$
+| $$  | $$  \  $$$$/ | $$  | $$| $$$$$$$/
+| $$  | $$   \  $$/  | $$  | $$| $$__  $$
+| $$  | $$    | $$   | $$  | $$| $$  \ $$
+| $$$$$$$/    | $$   |  $$$$$$/| $$  | $$
+|_______/     |__/    \______/ |__/  |__/
+
+''';
+
 echo "[TASK] creation of missing repositories"
 tmpDataFolder=".data0/"
 if [ ! -d $tmpDataFolder ]
@@ -6,7 +18,7 @@ then
   mkdir -p $tmpDataFolder
 fi
 
-declare -a arr=("twitter")
+declare -a arr=("twitter" "wallet")
 
 ## now loop through the above array
 for i in "${arr[@]}"
@@ -22,5 +34,5 @@ python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 
-echo "[TASK] duplicate .env file"
-cp .env.example .env0
+# echo "[TASK] duplicate .env file"
+# cp .env.example .env0
