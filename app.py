@@ -8,6 +8,7 @@ from config import Config as cfg
 from modules.twitter import Twitter
 from modules.wallet import Wallet
 from models.twitter import Queue as TwtQueue, Account as TwtAccount
+from models.wallet import Queue as WQueue
 
 load_dotenv()  # take environment variables from .env.
 
@@ -66,13 +67,13 @@ def listen_single_network(chain_id):
     click.echo('listening...')
     
     wallet = Wallet()
-    
-    with open(cfg.FILE_WALLET_QUEUE, 'r') as json_file:
-        json_decoded = json.load(json_file)
+    w_queue = WQueue(cfg.FILE_WALLET_QUEUE)
 
-    for key, value in json_decoded.items():
+    queue_addresses = w_queue.get_all()
+
+    for key, value in queue_addresses.items():
         address = key
-        last_block = value.get(str(chain_id), {}).get('last_block', 0)
+        last_block = value.get(str(chain_id), '1')
         username = value.get('username')
         user = {
             'address': address,

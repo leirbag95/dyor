@@ -2,6 +2,7 @@ import discord
 from discord import Webhook, RequestsWebhookAdapter
 from config import Config as cfg
 import click
+import json
 
 class Message:
 
