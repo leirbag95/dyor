@@ -59,7 +59,10 @@ def listen_twitter():
     t_account = twtAccount.get_all()
     
     for key, value in t_account.items():
-        twitter.fetch_new_following(key)
+        try:
+            twitter.fetch_new_following(key)
+        except Exception as e:
+            click.echo(str(e))
 
 @click.command()
 @click.option("--chain_id", default=1, prompt="Select specific network", help="Selected network to listen")
